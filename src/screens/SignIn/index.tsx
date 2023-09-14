@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import auth from '@react-native-firebase/auth';
 
 import { Container, Account, Title, Subtitle } from './styles';
@@ -11,16 +11,31 @@ export function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  function handleCreateSignInUserAccount(){
+  function handleCreateSignInUserAccount() {
     auth().createUserWithEmailAndPassword(email, password)
-    .then(() => Alert.alert("Usuario criado com sucesso!"))
+      .then(() => Alert.alert("Usuario criado com sucesso!"))
+      .catch(error => {
+        console.log(error.code)
+
+        if (error.code === 'auth/email-already-in-use') {
+          return Alert.alert('E-mail não disponivel. Escolha outro e-mail para cadastrar!')
+        }
+      })
+  }
+
+  async function handleSignInWithEmailAndPassword() {
+    auth()
+    .signInWithEmailAndPassword(email, password)
+    .then(({user}) => console.log(user))
     .catch(error => {
       console.log(error.code)
 
-      if(error.code === 'auth/email-already-in-use'){
-        return Alert.alert('E-mail não disponivel. Escolha outro e-mail para cadastrar!')
+      if(error.code === 'auth/invalid-login'){
+        Alert.alert("Usuario não encontrado.")
       }
     })
+
+    
   }
 
   return (
@@ -40,7 +55,7 @@ export function SignIn() {
         onChangeText={setPassword}
       />
 
-      <Button title="Entrar" onPress={() => { }} />
+      <Button title="Entrar" onPress={handleSignInWithEmailAndPassword} />
 
       <Account>
         <ButtonText title="Recuperar senha" onPress={() => { }} />
